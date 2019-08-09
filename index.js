@@ -1,4 +1,5 @@
 const express = require("express");
+require("dotenv").config();
 const People = require("./data/people.js");
 // const ChoresRouter = require("./chores/chores-router.js");
 
@@ -8,13 +9,17 @@ server.use(express.json());
 
 // server.use(("/api/people", ChoresRouter));
 
+server.get("/", (req, res) => {
+  res.status(200).json({ environment: process.env.environment });
+});
+
 server.get("/api/people/:peopleid/chores", (req, res) => {
   const { peopleid } = req.params;
 
   People.map(person => {
     if (!person.id)
       res.status(500).json({ message: "The person does not exist" });
-    if (person.id == peopleid) {
+    if (person.id.toString() === peopleid) {
       res.status(200).json(person.chores);
     }
   });
@@ -91,6 +96,6 @@ server.post("/api/people/:peopleid/chores/:choreid", (req, res) => {
     }
   });
 });
-const port = 8000;
+const port = process.env.PORT || 8000;
 
 server.listen(port, () => console.log(`\nRunning on ${port}\n`));
