@@ -15,26 +15,26 @@ server.get("/", (req, res) => {
 
 server.get("/api/people/:peopleid/chores", (req, res) => {
   const { peopleid } = req.params;
-  const pplId = parseInt(peopleid, 10);
-  console.log("people", pplId);
+
   People.map(person => {
-    console.log("person", person.id);
-    if (person.id === pplId) {
-      res.status(200).json(person.chores);
+    if (person.id.toString() === peopleid) {
+      return res.status(200).json(person.chores);
     }
-    // if (person.id !== pplId) {
-    //   res.status(500).json({ message: "The person does not exist" });
-    // }
   });
+  res.status(500).json({ message: "The chore does not exist" });
+  //   People.map(person => {
+  //     if (person.id.toString() !== peopleid) {
+  //       return res.status(500).json();
+  //     }
+  //   });
 });
 
 server.delete("/api/people/:peopleid/chores/:choresid", (req, res) => {
   const { peopleid } = req.params;
   const { choresid } = req.params;
 
-  console.log(choresid);
   People.map(person => {
-    if (person.id === peopleid) {
+    if (person.id.toString() === peopleid) {
       const newArr = person.chores.filter(chore => {
         if (chore.id == choresid) {
           return false;
@@ -43,16 +43,22 @@ server.delete("/api/people/:peopleid/chores/:choresid", (req, res) => {
         }
       });
       res.status(200).json(newArr);
-    } else {
-      res.status(404).json({ message: "The chore does not exist" });
     }
+    // else {
+    //   res.status(404).json({ message: "The chore does not exist" });
+    // }
   });
 });
 
 server.post("/api/people/:peopleid/chores", (req, res) => {
   const { peopleid } = req.params;
   const newChore = req.body;
+
+  let chord_id = 0;
+  newChore.id = chord_id + 1;
+
   console.log(newChore);
+
   People.map(person => {
     if (person.id.toString() === peopleid) {
       return person.chores.push(newChore);
@@ -67,17 +73,20 @@ server.put("/api/people/:peopleid/chores/:choreid", (req, res) => {
   console.log(peopleid);
   console.log(choreid);
   let changes = req.body;
-
   People.map(person => {
     if (person.id.toString() === peopleid) {
       const updateChore = person.chores.map(chore => {
         if (chore.id.toString() === choreid) {
-          chore = changes;
+          chore = { ...chore, ...changes };
         }
         return chore;
       });
+      person.chores = updateChore;
       res.status(200).json(updateChore);
     }
+    // else {
+    //   res.status(500).json({ message: "The chor does not exist" });
+    // }
   });
 });
 
